@@ -43,7 +43,7 @@ THIRD_PARTY_APPS = [
 ]
 
 LOCAL_APPS = [
-    'apps.quiz',  # Change from 'quiz.apps.QuizConfig' to 'apps.quiz'
+    'apps.quiz.apps.QuizConfig',  # Use the full path to the AppConfig
 ]
 
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS

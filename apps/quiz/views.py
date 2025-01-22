@@ -1,64 +1,70 @@
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
-from .models import Quiz, Question, SelectWordQuestion
-from .serializers import QuizSerializer, QuizAnswerSerializer
+from rest_framework.permissions import IsAuthenticated
+from django.db import transaction
+from .models import Quiz, Question, Answer
+from .serializers import (
+    QuizSerializer, 
+    QuestionSerializer,
+    AnswerSerializer,
+    QuizAnswerSubmissionSerializer
+)
 
 class QuizViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Quiz.objects.all()
     serializer_class = QuizSerializer
+    permission_classes = [IsAuthenticated]
 
     @action(detail=True, methods=['post'])
     def submit_answers(self, request, pk=None):
         quiz = self.get_object()
-        answers_data = request.data.get('answers', [])
+        serializer = QuizAnswerSubmissionSerializer(data=request.data)
         
-        if not answers_data:
-            return Response(
-                {"error": "No answers provided"},
-                status=status.HTTP_400_BAD_REQUEST
-            )
-
-        # Validate all answers
-        serializer = QuizAnswerSerializer(data=answers_data, many=True)
         if not serializer.is_valid():
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-        total_questions = quiz.questions.count()
-        correct_answers = 0
-
-        for answer in serializer.validated_data:
-            question_id = answer['question_id']
-            try:
-                question = Question.objects.get(id=question_id, quiz=quiz)
-            except Question.DoesNotExist:
-                return Response(
-                    {"error": f"Question {question_id} does not belong to this quiz"},
-                    status=status.HTTP_400_BAD_REQUEST
-                )
-
-            if question.question_type == Question.SELECT_WORDS:
-                select_word_question = SelectWordQuestion.objects.get(id=question_id)
-                submitted_words = set(answer.get('selected_words', []))
-                correct_words = set(select_word_question.correct_words)
-                if submitted_words == correct_words:
-                    correct_answers += 1
-            else:
-                submitted_answers = set(answer.get('answer_ids', []))
-                correct_answers_qs = question.answers.filter(is_correct=True)
-                correct_answer_ids = set(correct_answers_qs.values_list('id', flat=True))
+        answers_data = serializer.validated_data['answers']
+        
+        try:
+            with transaction.atomic():
+                answers = []
+                for answer_data in answers_data:
+                    question_id = answer_data['question']
+                    text = answer_data['text']
+                    
+                    try:
+                        question = Question.objects.get(id=question_id, quiz=quiz)
+                    except Question.DoesNotExist:
+                        return Response(
+                            {"error": f"Question {question_id} does not belong to this quiz"},
+                            status=status.HTTP_400_BAD_REQUEST
+                        )
+                    
+                    answer = Answer(
+                        user=request.user,
+                        question=question,
+                        text=text
+                    )
+                    answer.full_clean()  # This will run validation
+                    answers.append(answer)
                 
-                if question.question_type == Question.SINGLE_ANSWER:
-                    if submitted_answers == correct_answer_ids:
-                        correct_answers += 1
-                elif question.question_type == Question.MULTI_ANSWER:
-                    if submitted_answers == correct_answer_ids:
-                        correct_answers += 1
+                # Save all answers
+                Answer.objects.bulk_create(answers)
+                
+                # Calculate score
+                total_questions = len(answers)
+                correct_answers = sum(1 for answer in answers if answer.is_correct)
+                score = (correct_answers / total_questions * 100) if total_questions > 0 else 0
 
-        score = (correct_answers / total_questions) * 100 if total_questions > 0 else 0
-
-        return Response({
-            'total_questions': total_questions,
-            'correct_answers': correct_answers,
-            'score': round(score, 2)
-        }) 
+                return Response({
+                    'total_questions': total_questions,
+                    'correct_answers': correct_answers,
+                    'score': round(score, 2)
+                })
+                
+        except Exception as e:
+            return Response(
+                {"error": str(e)},
+                status=status.HTTP_400_BAD_REQUEST
+            ) 
