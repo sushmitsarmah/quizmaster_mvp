@@ -5,12 +5,14 @@ description = "a test project for valearnis quiz platform"
 readme = "README.md"
 requires-python = ">=3.10"
 dependencies = [
+    "crawl4ai>=0.4.247",
     "django>=5.1.5",
     "django-debug-toolbar>=5.0.1",
     "django-extensions>=3.2.3",
     "django-filter>=24.3",
     "djangorestframework>=3.15.2",
     "markdown>=3.7",
+    "pydantic-ai>=0.0.20",
 ]
 
 [dependency-groups]
