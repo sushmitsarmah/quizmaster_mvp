@@ -24,3 +24,17 @@ export interface Question {
   options?: string[];
   answer: Answer;
 }
+
+export interface Question {
+  id: number;
+  text: string;
+  options?: string[];
+  correctAnswer?: string | number | string[];
+}
+
+export interface Quiz {
+  id: number;
+  title: string;
+  description: string;
+  questions: Question[];
+}

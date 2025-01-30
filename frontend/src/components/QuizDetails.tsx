@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Quiz, Question } from '../types';
 import { ArrowLeft, CheckCircle } from 'lucide-react';
 
@@ -25,7 +25,7 @@ interface SelectWordProps {
   onSelect: (word: string) => void;
 }
 
-function SingleAnswerQuestion({ question, value, onChange }: SingleAnswerProps) {
+function SingleAnswerQuestion({ value, onChange }: SingleAnswerProps) {
   return (
     <div className="space-y-3">
       <input
