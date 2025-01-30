@@ -1,0 +1,6 @@
+frontend
+.venv
+scripts
+user_data
+dist
+.DS_Store
