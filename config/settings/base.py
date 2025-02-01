@@ -39,6 +39,7 @@ DJANGO_APPS = [
 ]
 
 THIRD_PARTY_APPS = [
+    "daphne",
     'corsheaders',
     'rest_framework',
     'rest_framework.authtoken',
@@ -48,7 +49,7 @@ LOCAL_APPS = [
     'apps.quiz.apps.QuizConfig',  # Use the full path to the AppConfig
 ]
 
-INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
+INSTALLED_APPS = THIRD_PARTY_APPS + DJANGO_APPS + LOCAL_APPS
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -129,3 +130,4 @@ STATIC_ROOT = BASE_DIR / 'static'
 # Default primary key field type
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField' 
 CORS_ALLOW_ALL_ORIGINS = True
+ASGI_APPLICATION = 'config.asgi.application'
