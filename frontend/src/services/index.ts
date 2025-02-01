@@ -1,29 +1,39 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import axios from 'axios';
 
-const API_URL = 'http://localhost:8000/api';
+const API_URL = import.meta.env.VITE_API_URL;
+
+const fetchApi = async (url: string, method: string, data: any) => {
+  const token = localStorage.getItem('token');
+  const response = await axios({
+    method,
+    url: `${API_URL}${url}`,
+    data,
+    headers: {
+      Authorization: `Token ${token}`,
+    },
+  });
+  return response.data;
+};
 
 export const getQuiz = async (id: number) => {
-  const response = await axios.get(`${API_URL}/quizzes/${id}`);
-  return response.data;
+  return fetchApi(`/quizzes/${id}/`, 'GET', null);
 };
 
 export const login = async (username: string, password: string) => {
-  const response = await axios.post(`${API_URL}/login/`, {
+  return fetchApi('/login/', 'POST', {
     username,
     password,
   });
-  return response.data;
 };
 
 export const getQuizzes = async () => {
-  const response = await axios.get(`${API_URL}/quizzes/`);
-  return response.data;
+  return fetchApi('/quizzes/', 'GET', null);
 };
 
 export const submitAnswer = async (quizId: number, questionId: number, answer: string) => {
-  const response = await axios.post(`${API_URL}/quizzes/${quizId}/submit_answer/`, {
+  return fetchApi(`/quizzes/${quizId}/submit_answer/`, 'POST', {
     question_id: questionId,
     answer: answer,
   });
-  return response.data;
 };

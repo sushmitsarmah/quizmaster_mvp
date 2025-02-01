@@ -16,7 +16,7 @@ const QuizPage: React.FC = () => {
       if (!id) return;
       try {
         const response = await getQuiz(+id);
-        setQuiz(response.data);
+        setQuiz(response);
       } catch (err: any) {
         console.log(err);
         setError('Failed to load quiz');

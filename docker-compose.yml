@@ -14,8 +14,8 @@ services:
     #   - redis
     ports:
       - "8000:8000"  # Expose your app's port (adjust as needed)
-    volumes:
-      - .:/var/task  # Mount the current directory for development (optional)
+    # volumes:
+    #   - .:/var/task  # Mount the current directory for development (optional)
 
   # postgres:
   #   image: postgres:15

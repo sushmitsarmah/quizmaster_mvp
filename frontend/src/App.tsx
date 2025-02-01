@@ -1,26 +1,28 @@
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
-import Login from './pages/Login';
-import Dashboard from './pages/Dashboard';
-import QuizPage from './pages/QuizPage';
-import PrivateRoute from './components/PrivateRoute';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { Navbar } from './components/Navbar';
 
-function App() {
+import routesObj from './Routes';
+import Protected from './components/ProtectedRoute';
+
+const App = () => {
   return (
     <BrowserRouter>
       <div className="min-h-screen bg-gray-100">
         <Navbar />
         <Routes>
-          <Route path="/login" element={<Login />} />
-
-          {PrivateRoute({ element: <Dashboard />, path: '/' })}
-          {PrivateRoute({ element: <QuizPage />, path: '/quiz/:id' })}
-          {/* <PrivateRoute path="/" element={<Dashboard />} />
-          <PrivateRoute path="/quiz/:id" element={<QuizPage />} /> */}
-        </Routes>
+              {routesObj.map((route) => (
+               <Route
+                   key={route.name}
+                   path={route.path}
+                   element={
+                    !route.protected ? route.element : Protected() ? route.element : <Navigate to="/login" />
+                  }
+               />
+              ))}
+          </Routes>
       </div>
     </BrowserRouter>
   );
-}
+};
 
 export default App;

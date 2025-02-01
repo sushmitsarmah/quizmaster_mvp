@@ -13,9 +13,9 @@ export default function Login() {
     e.preventDefault();
     try {
       const response = await login(username, password);
-      const { token } = response.data;
+      const { token } = response;
       localStorage.setItem('token', token);
-      navigate('/'); // Redirect to the dashboard or home page
+      navigate('/');
     } catch (err: any) {
       console.log(err);
       setError('Invalid username or password');
