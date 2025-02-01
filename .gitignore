@@ -12,3 +12,7 @@ wheels/
 user_data/
 
 .DS_Store
+
+.pytest_cache/
+
+.env
