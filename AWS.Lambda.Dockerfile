@@ -30,10 +30,6 @@ FROM public.ecr.aws/lambda/python:3.13
 # Copy the runtime dependencies from the builder stage.
 COPY --from=builder ${LAMBDA_TASK_ROOT} ${LAMBDA_TASK_ROOT}
 
-# Copy the application code.
-COPY ./apps ${LAMBDA_TASK_ROOT}/apps
-COPY ./config ${LAMBDA_TASK_ROOT}/config
-COPY ./manage.py ${LAMBDA_TASK_ROOT}/manage.py
-
 # Set the AWS Lambda handler.
-CMD ["config.asgi.handler"]
+# CMD ["config.asgi.handler"]
+CMD ["uv", "run", "manage.py", "runserver", "0.0.0.0:8000"]
